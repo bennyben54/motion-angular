@@ -20,7 +20,7 @@ export class HomeComponent implements OnInit {
   }
 
   authenticateImg(link: string): string {
-    return link + '?bearer=' + this.authService.accessToken;
+    return link + '?bearer=' + this.authService.accessToken.access_token;
   }
 
 }
