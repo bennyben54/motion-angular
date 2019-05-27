@@ -1,4 +1,5 @@
 <h1>Login</h1>
     <input type="text" [(ngModel)]="loginData.username" />
     <input type="password"  [(ngModel)]="loginData.password"/>
-    <button (click)="login()" type="submit">Login</button>
+    <button *ngIf="!loading" (click)="login()" type="submit">Login</button>
+    <span *ngIf="loading">Loading ...</span>

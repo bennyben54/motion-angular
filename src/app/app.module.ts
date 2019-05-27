@@ -8,13 +8,15 @@ import { HomeComponent } from './view/home/home.component';
 import { LoginComponent } from './view/login/login.component';
 import { RouterModule } from '@angular/router';
 import { AdminComponent } from './view/admin/admin.component';
+import { HeaderComponent } from './view/header/header.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     LoginComponent,
-    AdminComponent
+    AdminComponent,
+    HeaderComponent
   ],
   imports: [
     BrowserModule,

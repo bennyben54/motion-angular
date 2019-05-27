@@ -12,11 +12,8 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('HomeComponent.checkCredentials()');
     this.authService.checkCredentials();
-  }
-
-  logout() {
-    this.authService.logout();
   }
 
   authenticateImg(link: string): string {
