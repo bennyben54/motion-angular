@@ -39,7 +39,7 @@ export class AuthService {
 
       const httpHeaders = new HttpHeaders()
         .set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
-        .set('Authorization', this.computeBearer());
+        .set('Authorization', this.computeBasic());
 
       const options = {
         headers: httpHeaders
@@ -61,7 +61,7 @@ export class AuthService {
   checkToken() {
     const httpHeaders = new HttpHeaders()
         .set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
-        .set('Authorization', this.computeBearer());
+        .set('Authorization', this.computeBasic());
         const options = {
           headers: httpHeaders
         };
@@ -80,7 +80,7 @@ export class AuthService {
             });
   }
 
-  private computeBearer(): string {
+  private computeBasic(): string {
     return 'Basic ' + btoa(this.appName + ':' + this.appSecret);
   }
 
@@ -95,7 +95,14 @@ export class AuthService {
     if (!this.accessToken) {
       this.router.navigate(['/login']);
     } else {
-      this.router.navigate(['/']);
+      if (!this.user) {
+        this.checkToken();
+      }
+      if (this.user.authorities.find(s => s === 'ADMIN')) {
+        this.router.navigate(['/admin']);
+      } else {
+        this.router.navigate(['/']);
+      }
     }
   }
 
@@ -105,7 +112,7 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  // getResource(resourceUrl) : Observable<Foo>{
+  // getResource(resourceUrl): Observable<Foo>{
   //   var headers = new Headers({'Content-type': 'application/x-www-form-urlencoded; charset=utf-8',
   //     'Authorization': 'Bearer '+Cookie.get('access_token')});
   //   var options = new RequestOptions({ headers: headers });

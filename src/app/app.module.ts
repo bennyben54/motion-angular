@@ -22,7 +22,9 @@ import { AdminComponent } from './view/admin/admin.component';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
-      { path: 'login', component: LoginComponent }])
+      { path: 'login', component: LoginComponent },
+      { path: 'admin', component: AdminComponent }
+    ])
   ],
   providers: [],
   bootstrap: [AppComponent]
