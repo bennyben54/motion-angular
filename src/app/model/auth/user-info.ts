@@ -1,9 +1,11 @@
+import { AuthorityType } from './authority-type.enum';
+
 export class UserInfo {
 
     active: boolean;
     exp: number;
     user_name: string;
-    authorities: string[];
+    authorities: AuthorityType[];
     client_id: string;
     scope: string[];
 
@@ -11,7 +13,7 @@ export class UserInfo {
         active?: boolean,
         exp?: number,
         user_name?: string,
-        authorities?: string[],
+        authorities?: AuthorityType[],
         client_id?: string,
         scope?: string[]
     ) {

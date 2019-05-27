@@ -1,4 +1,4 @@
 <app-header></app-header>
-<p>
-  admin works!
-</p>
+<template *ngFor="let user of users;">
+  <app-user-elem [user] = "user"></app-user-elem>
+</template>

@@ -8,15 +8,17 @@ import { Token } from '../model/auth/token';
 import { UserInfo } from '../model/auth/user-info';
 import { LoadingService } from './loading.service';
 import { LoadingId } from '../model/loading/loading-id.enum';
+import { AuthorityType } from '../model/auth/authority-type.enum';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  readonly oauthServer = 'http://localhost:8080/oauth';
+
   private readonly x_app_beo_token = 'x-beo-app-token';
   private readonly x_app_beo_user = 'x-beo-app-user';
-  private readonly oauthServer = 'http://localhost:8080/oauth';
   private readonly appName = 'first-client';
   private readonly appSecret = 'noonewilleverguess';
 
@@ -32,6 +34,10 @@ export class AuthService {
   }
 
   constructor(private router: Router, private http: HttpClient, private loadingService: LoadingService) { }
+
+  isLogged(): boolean {
+    return !!this.accessToken && !!this.user;
+  }
 
   obtainAccessToken(loginData: UserLogin) {
     this.loadingService.startLoading(LoadingId.LOGIN);
@@ -78,7 +84,7 @@ export class AuthService {
           .subscribe(
             data => {
               this.saveUserInfo(data);
-              if (this.user.authorities.find(s => s === 'ADMIN')) {
+              if (this.user.authorities.find(s => s === AuthorityType.ADMIN)) {
                 this.router.navigate(['/admin']);
               } else {
                 this.router.navigate(['/']);
@@ -111,10 +117,10 @@ export class AuthService {
     this._user = JSON.parse(window.localStorage.getItem(this.x_app_beo_user));
     if (!this.accessToken) {
       this.logout();
-    } else {
-      if (!this.user) {
+    } else if (!this.user) {
         this.checkToken();
-      }
+    // } else if (this.user.exp * 1000 > new Date().getTime()) {
+    //   this.logout();
     }
   }
 
