@@ -11,7 +11,11 @@ export class AuthHttpInterceptorService implements HttpInterceptor {
   constructor(private authService: AuthService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (req.url.startsWith('http://localhost:8080/api')) {
+    if (
+      req.url.startsWith('http://localhost:8080/api')
+      && !!this.authService.accessToken
+    ) {
+      console.log(req);
       return next.handle(req.clone({
         headers: req.headers.set('Authorization', 'Bearer ' + this.authService.accessToken.access_token)
       }));

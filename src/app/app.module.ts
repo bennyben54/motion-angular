@@ -11,6 +11,8 @@ import { AdminComponent } from './view/admin/admin.component';
 import { HeaderComponent } from './view/header/header.component';
 import { UserElemComponent } from './view/admin/user-elem/user-elem.component';
 import { AuthHttpInterceptorService } from './service/auth-http-interceptor.service';
+import { SubscribeComponent } from './view/subscribe/subscribe.component';
+import { SubscribeElemComponent } from './view/admin/subscribe-elem/subscribe-elem.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,9 @@ import { AuthHttpInterceptorService } from './service/auth-http-interceptor.serv
     LoginComponent,
     AdminComponent,
     HeaderComponent,
-    UserElemComponent
+    UserElemComponent,
+    SubscribeComponent,
+    SubscribeElemComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +32,8 @@ import { AuthHttpInterceptorService } from './service/auth-http-interceptor.serv
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
       { path: 'login', component: LoginComponent },
-      { path: 'admin', component: AdminComponent }
+      { path: 'admin', component: AdminComponent },
+      { path: 'subscribe', component: SubscribeComponent }
     ])
   ],
   providers: [

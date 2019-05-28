@@ -1,4 +1,9 @@
 <app-header></app-header>
-<template *ngFor="let user of users;">
-  <app-user-elem [user] = "user"></app-user-elem>
-</template>
+<div>
+    <h4>Users</h4>
+<app-user-elem *ngFor="let user of users" [user] = "user"></app-user-elem>
+</div>
+<div>
+    <h4>Subscribers</h4>
+    <app-subscribe-elem *ngFor="let subscriber of subscribers" [subscriber] = "subscriber"></app-subscribe-elem>
+</div>

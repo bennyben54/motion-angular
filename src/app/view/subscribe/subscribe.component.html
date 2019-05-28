@@ -1,0 +1,4 @@
+<input type="text" [(ngModel)]="subscribeData.username" />
+    <input type="password"  [(ngModel)]="subscribeData.password"/>
+    <button *ngIf="!loading" (click)="subscribe()" type="submit">Subscribe</button>
+    <span *ngIf="loading">Loading ...</span>
