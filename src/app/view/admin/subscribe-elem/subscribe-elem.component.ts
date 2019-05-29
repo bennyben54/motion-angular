@@ -21,7 +21,7 @@ export class SubscribeElemComponent implements OnInit {
 
   acceptSubscrition() {
     this.loading = true;
-    this.http.put<UserDto>(`http://localhost:8080/api/user/${this.subscriber.id}`, null)
+    this.http.post<UserDto>(`http://localhost:8080/api/user/${this.subscriber.id}`, null)
     .subscribe(
       data => {
         this.subscribeService.subscribedUser.next({subscriber: this.subscriber, user: data});
