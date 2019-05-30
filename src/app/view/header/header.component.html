@@ -1,1 +1,10 @@
-<div>{{authService.user.user_name}} connected<button (click)="logout()">Logout</button></div>
+<mat-toolbar color="primary">
+        <mat-toolbar-row>
+                <div>{{authService.user.user_name}} connected</div>
+                <button mat-icon-button color="basic" aria-label="Logout" (click)="logout()">
+                    Logout <mat-icon>close</mat-icon>
+                </button>
+        </mat-toolbar-row>
+</mat-toolbar>
+
+

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UserLogin } from 'src/app/model/auth/user-login';
 import { UserDto } from 'src/app/model/user/user-dto';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-subscribe',
@@ -21,7 +22,7 @@ export class SubscribeComponent implements OnInit {
 
   subscribe() {
     this.http.post<UserDto>(
-      'http://localhost:8080/api/user/subscribe',
+      `${environment.servers.userApi}/subscribe`,
       this.subscribeData)
       .subscribe(
         data => {

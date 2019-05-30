@@ -3,7 +3,13 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  servers: {
+    oauth: 'http://localhost:8080/oauth',
+    userApi: 'http://localhost:8080/api/user',
+    camera1: 'http://192.168.1.76:8081',
+    camera2: 'http://192.168.1.76:8082'
+  }
 };
 
 /*

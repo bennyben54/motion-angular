@@ -1,5 +1,2 @@
-<div>{{user.username}} | {{user.authorities}} | {{user.enabled}}
-    <button *ngIf="!loading" (click)="toggleUserActivation()">{{user.enabled ? 'Disable' : 'Enable'}}</button>
-    <span *ngIf="loading">Loading...</span>
-</div>
-
+<button *ngIf="!loading" (click)="toggleUserActivation()">{{user.enabled ? 'Disable' : 'Enable'}}</button>
+<span *ngIf="loading">Loading...</span>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../service/auth.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -7,6 +8,9 @@ import { AuthService } from '../../service/auth.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+
+  readonly camera1Url = `${environment.servers.camera1}`;
+  readonly camera2Url = `${environment.servers.camera2}`;
 
   constructor(private authService: AuthService) {
   }
@@ -16,7 +20,7 @@ export class HomeComponent implements OnInit {
     this.authService.checkCredentials();
   }
 
-  authenticateImg(link: string): string {
+  authenticateUrl(link: string): string {
     return link + '?bearer=' + this.authService.accessToken.access_token;
   }
 

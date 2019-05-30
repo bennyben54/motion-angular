@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { UserDto } from 'src/app/model/user/user-dto';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-user-elem',
@@ -18,9 +19,9 @@ export class UserElemComponent implements OnInit {
   ngOnInit() {
   }
 
-  toggleUserActivation() {
+  toggleUserActivation(load: boolean) {
     this.loading = true;
-    this.http.put<boolean>(`http://localhost:8080/api/user/${this.user.id}/${this.user.enabled ? 'disable' : 'enable'}`, null)
+    this.http.put<boolean>(`${environment.servers.userApi}/${this.user.id}/${this.user.enabled ? 'disable' : 'enable'}`, null)
     .subscribe(
       data => {
         this.user.enabled = data;
