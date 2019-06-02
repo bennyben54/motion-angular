@@ -12,15 +12,28 @@ export class HomeComponent implements OnInit {
   readonly camera1Url = `${environment.servers.camera1}`;
   readonly camera2Url = `${environment.servers.camera2}`;
 
+  camera1Loading = false;
+  camera2Loading = false;
+
   constructor(private authService: AuthService) {
   }
 
   ngOnInit() {
     console.log('HomeComponent.ngOnInit()');
+    this.camera1Loading = true;
+    this.camera2Loading = true;
   }
 
   authenticateUrl(link: string): string {
     return link + '?bearer=' + this.authService.accessToken.access_token;
+  }
+
+  camera1Loaded() {
+    this.camera1Loading = false;
+  }
+
+  camera2Loaded() {
+    this.camera2Loading = false;
   }
 
 }

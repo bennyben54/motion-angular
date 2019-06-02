@@ -1,4 +1,10 @@
 <div class="home">
-    <img class="video" [src]="authenticateUrl(camera1Url)">
-    <img class="video" [src]="authenticateUrl(camera2Url)">
+    <div class="video">
+        <img [src]="authenticateUrl(camera1Url)" (load)="camera1Loaded()">
+        <mat-spinner diameter="50" *ngIf="camera1Loading"></mat-spinner>
+    </div>
+    <div class="video">
+        <img [src]="authenticateUrl(camera2Url)" (load)="camera2Loaded()">
+        <mat-spinner diameter="50" *ngIf="camera2Loading"></mat-spinner>
+    </div>
 </div>
