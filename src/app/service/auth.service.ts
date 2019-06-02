@@ -16,8 +16,6 @@ export class AuthService {
 
   private readonly x_app_beo_token = 'x-beo-app-token';
   private readonly x_app_beo_user = 'x-beo-app-user';
-  private readonly appName = 'first-client';
-  private readonly appSecret = 'noonewilleverguess';
 
   private _accessToken: Token;
   private _user: UserInfo;
@@ -35,6 +33,13 @@ export class AuthService {
   isLogged(): boolean {
     return !!this.accessToken && !!this.user;
   }
+
+  isAdmin(): boolean {
+    if (!this.user) {
+      return false;
+    }
+    return !!this.user.authorities.find(a => a === AuthorityType.ROLE_ADMIN);
+}
 
   obtainAccessToken(loginData: UserLogin) {
     this.loadingService.startLoading(LoadingId.LOGIN);
@@ -81,7 +86,7 @@ export class AuthService {
           .subscribe(
             data => {
               this.saveUserInfo(data);
-              if (this.user.authorities.find(s => s === AuthorityType.ADMIN)) {
+              if (this.isAdmin()) {
                 this.router.navigate(['/admin']);
               } else {
                 this.router.navigate(['/']);
@@ -95,7 +100,7 @@ export class AuthService {
   }
 
   private computeBasic(): string {
-    return 'Basic ' + btoa(this.appName + ':' + this.appSecret);
+    return 'Basic ' + btoa(environment.oauth.appName + ':' + environment.oauth.appSecret);
   }
 
   private saveToken(token: Token) {

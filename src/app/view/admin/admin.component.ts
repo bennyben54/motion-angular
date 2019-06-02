@@ -6,6 +6,7 @@ import { SubscribeService } from 'src/app/service/subscribe.service';
 import { filter } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { MatTableDataSource, MatTable } from '@angular/material';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin',
@@ -25,14 +26,21 @@ export class AdminComponent implements OnInit {
   subscribersDataSource: MatTableDataSource<UserDto>;
   @ViewChild('subscribersTable') subscribersTable: MatTable<any>;
 
-  constructor(private authService: AuthService, private http: HttpClient, private subscribeService: SubscribeService) { }
+  constructor(
+    private authService: AuthService,
+    private http: HttpClient,
+    private subscribeService: SubscribeService,
+    private router: Router) { }
 
   ngOnInit() {
-    console.log('AdminComponent.checkCredentials()');
-    this.authService.checkCredentials();
-    this.fetchUsers();
-    this.fetchSubscribers();
-    this.listenToSubscitionAccept();
+    console.log('AdminComponent.ngOnInit()');
+    if (this.authService.isAdmin()) {
+      this.fetchUsers();
+      this.fetchSubscribers();
+      this.listenToSubscitionAccept();
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 
   private fetchUsers() {

@@ -1,0 +1,12 @@
+.home {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.video {
+    border: 1px;
+    border-color: black;
+    padding-top: 5px;
+}

@@ -16,8 +16,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('HomeComponent.checkCredentials()');
-    this.authService.checkCredentials();
+    console.log('HomeComponent.ngOnInit()');
   }
 
   authenticateUrl(link: string): string {
