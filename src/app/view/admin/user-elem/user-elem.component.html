@@ -1,2 +1,9 @@
-<button *ngIf="!loading" (click)="toggleUserActivation()">{{user.enabled ? 'Disable' : 'Enable'}}</button>
-<span *ngIf="loading">Loading...</span>
+<div>
+    <button mat-icon-button matSuffix (click)="toggleUserActivation()" [attr.aria-label]="user.enabled ? 'Disable' : 'Enable'">
+        <mat-icon>{{user.enabled ? 'check_box' : 'check_box_outline_blank'}}</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix (click)="deleteUser()" [attr.aria-label]="'Delete user'">
+        <mat-icon>delete_forever</mat-icon>
+    </button>
+    <span *ngIf="loading">Loading...</span>
+</div>

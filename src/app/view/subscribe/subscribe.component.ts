@@ -8,11 +8,12 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-subscribe',
   templateUrl: './subscribe.component.html',
-  styleUrls: ['./subscribe.component.css']
+  styleUrls: ['./subscribe.component.css', '../login/login.component.css']
 })
 export class SubscribeComponent implements OnInit {
 
-  private subscribeData = new UserDto();
+  subscribeData = new UserLogin();
+  subscribedUser: UserDto;
 
   loading = false;
   hide = true;
@@ -28,13 +29,16 @@ export class SubscribeComponent implements OnInit {
       this.subscribeData)
       .subscribe(
         data => {
-          this.subscribeData = data;
-          this.router.navigate(['/login']);
+          this.subscribedUser = data;
         },
         err => {
           console.error('Subscrition failed', err);
         }
       );
+  }
+
+  goToLogin() {
+    this.router.navigate(['/login']);
   }
 
 }

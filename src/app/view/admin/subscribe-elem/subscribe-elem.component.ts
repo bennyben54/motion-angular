@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UserDto } from 'src/app/model/user/user-dto';
-import { SubscribeService } from 'src/app/service/subscribe.service';
+import { SubscribeService, UserManagementAction } from 'src/app/service/subscribe.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -30,6 +30,23 @@ export class SubscribeElemComponent implements OnInit {
       },
       err => {
         console.error('Error accepting subscrition', this.subscriber, err);
+        this.loading = false;
+      }
+    );
+  }
+
+  deleteSubscription() {
+    this.loading = true;
+    this.http.delete<void>(`${environment.servers.userApi}/subscription/${this.subscriber.id}`)
+    .subscribe(
+      data => {
+        this.subscribeService.subscribedUser.next(
+          {subscriber: this.subscriber, user: null, action: UserManagementAction.DELETE_SUBSCRIPTION}
+          );
+        this.loading = false;
+      },
+      err => {
+        console.error('Error deleting subscrition', this.subscriber, err);
         this.loading = false;
       }
     );

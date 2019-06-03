@@ -1,6 +1,5 @@
 .login {
     margin-top: 10px;
-    width: 60%;
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -9,4 +8,13 @@
 
 .fake_button {
     pointer-events: none;
+}
+
+.field_block {
+    display: block;
+}
+
+.action_button {
+    margin-left: 5px;
+    margin-right: 5px;
 }

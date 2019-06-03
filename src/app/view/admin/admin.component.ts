@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from 'src/app/service/auth.service';
 import { UserDto } from 'src/app/model/user/user-dto';
 import { HttpClient } from '@angular/common/http';
-import { SubscribeService } from 'src/app/service/subscribe.service';
+import { SubscribeService, UserManagementAction } from 'src/app/service/subscribe.service';
 import { filter } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { MatTableDataSource, MatTable } from '@angular/material';
@@ -67,13 +67,20 @@ export class AdminComponent implements OnInit {
 
   private listenToSubscitionAccept() {
     this.subscribeService.$subscribedUserObs
-    .pipe(filter(obs => !!obs && !!obs.subscriber && !!obs.user))
+    .pipe(filter(obs => !!obs && (!!obs.subscriber || !!obs.user)))
     .subscribe(
       obs => {
-        this.users.push(obs.user);
-
-        const i = this.subscribers.indexOf(obs.subscriber);
-        this.subscribers.splice(i, 1);
+        if (!obs.action) {
+          this.users.push(obs.user);
+          const i = this.subscribers.indexOf(obs.subscriber);
+          this.subscribers.splice(i, 1);
+        } else if (obs.action === UserManagementAction.DELETE_USER) {
+          const i = this.users.indexOf(obs.user);
+          this.users.splice(i, 1);
+        } else if (obs.action === UserManagementAction.DELETE_SUBSCRIPTION) {
+          const i = this.subscribers.indexOf(obs.subscriber);
+          this.subscribers.splice(i, 1);
+        }
 
         this.subscribersTable.renderRows();
         this.usersTable.renderRows();

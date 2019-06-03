@@ -1,20 +1,27 @@
 <mat-card class="login">
     <mat-card-content>
-        <mat-form-field>
-            <input matInput placeholder="Username" type="text" [(ngModel)]="subscribeData.username">
-            <button mat-icon-button matSuffix class="fake_button">
-                <mat-icon inline>account_circle</mat-icon>
-            </button>
-        </mat-form-field>
-        <mat-form-field>
-            <input matInput placeholder="Password" [type]="hide ? 'password' : 'text'" [(ngModel)]="subscribeData.password">
-            <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-                <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-        </mat-form-field>
+        <div *ngIf="!subscribedUser">
+            <mat-form-field class="field_block">
+                <input matInput placeholder="Username" type="text" [(ngModel)]="subscribeData.username">
+                <button mat-icon-button matSuffix class="fake_button">
+                    <mat-icon inline>account_circle</mat-icon>
+                </button>
+            </mat-form-field>
+            <mat-form-field class="field_block">
+                <input matInput placeholder="Password" [type]="hide ? 'password' : 'text'" [(ngModel)]="subscribeData.password">
+                <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+                    <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                </button>
+            </mat-form-field>
+        </div>
+        <div *ngIf="subscribedUser">
+            Account {{subscribedUser.username}} has successfully been created but is still disabled.<br>
+            Admin will soon enable account.
+        </div>
     </mat-card-content>
     <mat-card-actions>
-        <button *ngIf="!loading" (click)="subscribe()" type="submit">Subscribe <mat-icon inline>create</mat-icon></button>
+        <button class="action_button" *ngIf="!loading && !subscribedUser" (click)="subscribe()" type="submit">Subscribe <mat-icon inline>create</mat-icon></button>
+        <button class="action_button" *ngIf="!loading && subscribedUser" (click)="goToLogin()">Go to login <mat-icon inline>home</mat-icon></button>
     </mat-card-actions>
     <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 </mat-card>

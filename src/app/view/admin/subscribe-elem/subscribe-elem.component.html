@@ -1,4 +1,9 @@
 <div>
-    <button *ngIf="!loading" (click)="acceptSubscrition()">Accept subscription</button>
+    <button mat-icon-button matSuffix (click)="acceptSubscrition()" [attr.aria-label]="'Accept subscription'">
+        <mat-icon>check_circle</mat-icon>
+    </button>
+    <button mat-icon-button matSuffix (click)="deleteSubscription()" [attr.aria-label]="'Delete subscription'">
+        <mat-icon>delete_forever</mat-icon>
+    </button>
     <span *ngIf="loading">Loading...</span>
 </div>
