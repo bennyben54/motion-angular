@@ -5,5 +5,5 @@
     <button mat-icon-button matSuffix (click)="deleteUser()" [attr.aria-label]="'Delete user'">
         <mat-icon>delete_forever</mat-icon>
     </button>
-    <span *ngIf="loading">Loading...</span>
+    <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
 </div>
