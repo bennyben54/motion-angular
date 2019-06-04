@@ -7,8 +7,8 @@ export const environment = {
   servers: {
     oauth: 'http://192.168.1.76:8090/oauth',
     userApi: 'http://192.168.1.76:8090/api/user',
-    camera1: 'http://192.168.1.76:8090/camera1',
-    camera2: 'http://192.168.1.76:8090/camera2'
+    camera1: 'http://192.168.1.76:8081',
+    camera2: 'http://192.168.1.76:8082'
   },
   oauth: {
     appName: 'beo-app-client',
