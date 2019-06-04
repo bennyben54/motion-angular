@@ -1,0 +1,8 @@
+.header-toolbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* .logout-button {
+    margin-right: 15px;
+} */

@@ -1,1 +1,26 @@
-<div>{{authService.user.user_name}} connected<button (click)="logout()">Logout</button></div>
+<mat-toolbar color="primary">
+        <mat-toolbar-row class="header-toolbar">
+                <div *ngIf="authService.user?.user_name">{{authService.user.user_name}} connected</div>
+                <div>
+                        <button mat-icon-button [matMenuTriggerFor]="menu" class="logout-button" aria-label="Example icon-button with a menu">
+                                <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <mat-menu #menu="matMenu">
+                                <button mat-menu-item (click)="goToHome()">
+                                        <mat-icon>home</mat-icon>
+                                        <span>Home</span>
+                                </button>
+                                <button *ngIf="authService.isAdmin()" mat-menu-item (click)="goToAdmin()">
+                                        <mat-icon>perm_data_setting</mat-icon>
+                                        <span>Admin</span>
+                                </button>
+                                <button mat-menu-item (click)="logout()">
+                                        <mat-icon>exit_to_app</mat-icon>
+                                        <span>Logout</span>
+                                </button>
+                        </mat-menu>          
+                </div>
+        </mat-toolbar-row>
+</mat-toolbar>
+
+
