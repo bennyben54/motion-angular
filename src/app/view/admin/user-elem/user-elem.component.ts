@@ -20,7 +20,7 @@ export class UserElemComponent implements OnInit {
   ngOnInit() {
   }
 
-  toggleUserActivation(load: boolean) {
+  toggleUserActivation() {
     this.loading = true;
     this.http.put<boolean>(`${environment.servers.userApi}/${this.user.id}/${this.user.enabled ? 'disable' : 'enable'}`, null)
     .subscribe(
