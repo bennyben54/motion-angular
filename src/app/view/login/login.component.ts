@@ -4,6 +4,7 @@ import { UserLogin } from '../../model/auth/user-login';
 import { LoadingService } from 'src/app/service/loading.service';
 import { Subscription } from 'rxjs';
 import { LoadingId } from 'src/app/model/loading/loading-id.enum';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -17,8 +18,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
 
   loading = false;
+  hide = true;
 
-  constructor(private authService: AuthService, private loadingService: LoadingService) { }
+  constructor(private authService: AuthService, private loadingService: LoadingService, private router: Router) { }
 
   ngOnInit() {
     this.subscriptions.push(
@@ -34,6 +36,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   login() {
     this.authService.obtainAccessToken(this.loginData);
+  }
+
+  goToSubscribe() {
+    this.router.navigate(['/subscribe']);
   }
 
 }

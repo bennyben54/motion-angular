@@ -1,7 +1,5 @@
 import { Injectable, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { Http, RequestOptionsArgs, Headers } from '@angular/http';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { UserLogin } from '../model/auth/user-login';
 import { Token } from '../model/auth/token';
@@ -9,18 +7,15 @@ import { UserInfo } from '../model/auth/user-info';
 import { LoadingService } from './loading.service';
 import { LoadingId } from '../model/loading/loading-id.enum';
 import { AuthorityType } from '../model/auth/authority-type.enum';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  readonly oauthServer = 'http://localhost:8080/oauth';
-
   private readonly x_app_beo_token = 'x-beo-app-token';
   private readonly x_app_beo_user = 'x-beo-app-user';
-  private readonly appName = 'first-client';
-  private readonly appSecret = 'noonewilleverguess';
 
   private _accessToken: Token;
   private _user: UserInfo;
@@ -39,6 +34,13 @@ export class AuthService {
     return !!this.accessToken && !!this.user;
   }
 
+  isAdmin(): boolean {
+    if (!this.user) {
+      return false;
+    }
+    return !!this.user.authorities.find(a => a === AuthorityType.ROLE_ADMIN);
+}
+
   obtainAccessToken(loginData: UserLogin) {
     this.loadingService.startLoading(LoadingId.LOGIN);
     const httpParams = new HttpParams()
@@ -56,7 +58,7 @@ export class AuthService {
     };
 
     this.http.post<Token>(
-      this.oauthServer + '/token',
+      environment.servers.oauth + '/token',
       httpParams.toString(),
       options)
       .subscribe(
@@ -78,13 +80,13 @@ export class AuthService {
           headers: httpHeaders
         };
         this.http.post<UserInfo>(
-          this.oauthServer + '/check_token?token=' + this.accessToken.access_token,
+          environment.servers.oauth + '/check_token?token=' + this.accessToken.access_token,
           null,
           options)
           .subscribe(
             data => {
               this.saveUserInfo(data);
-              if (this.user.authorities.find(s => s === AuthorityType.ADMIN)) {
+              if (this.isAdmin()) {
                 this.router.navigate(['/admin']);
               } else {
                 this.router.navigate(['/']);
@@ -98,7 +100,7 @@ export class AuthService {
   }
 
   private computeBasic(): string {
-    return 'Basic ' + btoa(this.appName + ':' + this.appSecret);
+    return 'Basic ' + btoa(environment.oauth.appName + ':' + environment.oauth.appSecret);
   }
 
   private saveToken(token: Token) {
