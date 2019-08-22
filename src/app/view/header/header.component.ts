@@ -22,6 +22,10 @@ export class HeaderComponent implements OnInit {
     this.router.navigate(['/admin']);
   }
 
+  goToCam() {
+    this.router.navigate(['/cam']);
+  }
+
   logout() {
     this.authService.logout();
   }
