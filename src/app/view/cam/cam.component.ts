@@ -1,8 +1,8 @@
-import { MessagingService } from './../../service/messaging.service';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { MessagingService } from './../../service/messaging.service';
 
 enum MessageType {
   videoOffer = 'video-offer',
@@ -19,7 +19,7 @@ interface ExchangeMessage {
   type: MessageType;
   name?: UserName;
   target: UserName;
-  sdp?: string;
+  sdp?: RTCSessionDescriptionInit;
   candidate?: string;
 }
 
@@ -28,7 +28,7 @@ interface Signaling extends ExchangeMessage {
   name: UserName; // The sender's username.
   target: UserName; // The username of the person to receive the description (if the caller is sending the message,
                   // this specifies the callee, and vice-versa)
-  sdp: string;
+  sdp: RTCSessionDescriptionInit;
 }
 
 interface IceCandidate extends ExchangeMessage {
@@ -54,14 +54,16 @@ export class CamComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private myName: UserName;
   private remoteName: UserName;
+  private localStream: MediaStream;
   private readonly iceServers = [
     { urls: 'stun:stun.services.mozilla.com' },
     { urls: 'stun:stun.l.google.com:19302' }
   ];
 
   errors: string[] = [];
+  callActive = false;
 
-  constructor(private http: HttpClient, private route: ActivatedRoute, private messagingService: MessagingService) { }
+  constructor(private route: ActivatedRoute, private messagingService: MessagingService) { }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -75,38 +77,6 @@ export class CamComponent implements OnInit, OnDestroy {
     });
 
     this.setupWebRtc();
-
-    
-    
-
-    // window['roomHash'] = '2864fd7d-f14f-4522-b4b8-aff4d299f9d1'; // Math.floor(Math.random() * 0xFFFFFF).toString(16); // '2864fd7d';
-
-    // this.subscriptions.push(
-    //   this.dynamicScriptLoader.scriptLoader
-    //   .pipe(
-    //     filter(script => script.loaded && !script.error && script.status === 'Loaded'),
-    //     tap(script => {
-    //       if (script.name === ScriptName.scaledrone) {
-    //         this.dynamicScriptLoader.load(ScriptName.webrtc); // load script.js only when scaledrone script is loaded
-    //       }
-    //     })
-    //     )
-    //   .subscribe(
-    //     script => {
-    //         console.log(window['roomHash'], script);
-    //     }
-    //   )
-    // );
-    // this.subscriptions.push(
-    //   this.dynamicScriptLoader.scriptLoader
-    //   .pipe(filter(script => script.loaded && script.error))
-    //   .subscribe(
-    //     script => {
-    //         this.handleError(script);
-    //     }
-    //   )
-    // );
-    // // this.dynamicScriptLoader.load(ScriptName.scaledrone);
   }
 
   ngOnDestroy() {
@@ -130,16 +100,18 @@ export class CamComponent implements OnInit, OnDestroy {
       type: type,
       name: this.myName,
       target: this.remoteName,
-      sdp: JSON.stringify(localDescription)
+      sdp: localDescription
     };
   }
 
   setupWebRtc() {
     this.initPeerConnection();
+
     if (!this.pc) {
       this.handleError('setupWebRtc on error, pc null');
       return;
     }
+
     this.pc.onicecandidate = event => {
       if (event.candidate) {
         this.sendMessage(this.createIceCandidate(event));
@@ -147,6 +119,12 @@ export class CamComponent implements OnInit, OnDestroy {
         console.log('Sent All Ice Candidates');
       }
     };
+
+    this.pc.ontrack = event => {
+      // receiving remote media stream
+      (this.remote.nativeElement.srcObject = event.streams[0]);
+    };
+
     this.messagingService.onReceiveMessage(
       message => {
         const parsed: ExchangeMessage = JSON.parse(message.body);
@@ -157,25 +135,19 @@ export class CamComponent implements OnInit, OnDestroy {
                 this.pc.addIceCandidate(new RTCIceCandidate(JSON.parse(parsed.candidate)));
               break;
             case MessageType.videoOffer :
-                // this.callActive = true;
-                this.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(parsed.sdp)))
-                .then(() => this.pc.createAnswer())
-                .then(answer => this.pc.setLocalDescription(answer))
-                .then(() => this.sendMessage(this.createSignaling(MessageType.videoAnswer, this.pc.localDescription)));
-              break;
+                this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp))
+                .then(() => this.answerCall());
+                break;
             case MessageType.videoAnswer :
-                // this.callActive = true;
-                this.pc.setRemoteDescription(new RTCSessionDescription(JSON.parse(parsed.sdp)));
-              break;
+                this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp));
+                break;
+              }
           }
         }
-      }
     );
   }
 
-
-
-  initPeerConnection(retryOnce: boolean = true) {
+  private initPeerConnection(retryOnce: boolean = true) {
     try {
       if (!this.pc) {
         this.pc = new RTCPeerConnection({
@@ -190,79 +162,54 @@ export class CamComponent implements OnInit, OnDestroy {
     }
   }
 
-  startCall() {
-
+  private handleCall(
+    messageType: MessageType.videoOffer | MessageType.videoAnswer,
+    createOfferOrAnswerCallback: (options?: RTCOfferOptions) => Promise<RTCSessionDescriptionInit>
+    ) {
     navigator.mediaDevices.getUserMedia(
       {video: true , audio: true})
       .then(
       stream => {
         this.me.nativeElement.srcObject = stream;
+        this.localStream = stream;
         stream.getTracks().forEach(track => {
           this.pc.addTrack(track, stream);
         });
 
-        this.pc.createOffer()
+        createOfferOrAnswerCallback()
           .then(offer => {
             this.pc.setLocalDescription(offer)
             .then(() => {
-              this.sendMessage(this.createSignaling(MessageType.videoAnswer, this.pc.localDescription));
+              this.sendMessage(this.createSignaling(messageType, this.pc.localDescription));
+              this.callActive = true;
             })
             .catch(error => {
-              this.handleError('this.pc.setLocalDescription() error: ', error);
+              this.handleError(`${messageType} this.pc.setLocalDescription() error: `, error);
             });
           })
           .catch(error => {
-            this.handleError('this.pc.createOffer() error: ', error);
+            this.handleError(`${messageType} this.pc.createOffer() error: `, error);
           });
       })
       .catch(
       error => {
-        this.handleError('navigator.getUserMedia error: ', error);
+        this.handleError(`${messageType} this.pc.getUserMedia() error: `, error);
       }
       );
   }
 
-  // answerCall() {
-  //   navigator.getUserMedia(
-  //     {video: true , audio: true},
-  //     stream => {
-  //       this.me.nativeElement.srcObject = stream;
-  //       stream.getTracks().forEach(track => {
-  //         this.pc.addTrack(track, stream);
-  //       });
+  startCall() {
+    this.handleCall(MessageType.videoOffer, () => this.pc.createOffer());
+  }
 
-  //       this.pc.createAnswer()
-  //         .then(answer => {
-  //           this.pc.setLocalDescription(answer)
-  //           .then(() => {
-  //             this.sendMessage(this.createSignaling(MessageType.videoAnswer, this.pc.localDescription));
-  //           })
-  //           .catch(error => {
-  //             this.handleError('this.pc.setLocalDescription() error: ', error);
-  //           });
-  //         })
-  //         .catch(error => {
-  //           this.handleError('this.pc.createOffer() error: ', error);
-  //         });
-  //     },
-  //     error => {
-  //       this.handleError('navigator.getUserMedia error: ', error);
-  //     }
-  //     );
-  // }
+  answerCall() {
+    this.handleCall(MessageType.videoAnswer, () => this.pc.createAnswer());
+  }
 
-  showRemote() {
-    // try {
-    //   this.pc.createOffer()
-    //     .then(offer => this.pc.setLocalDescription(offer))
-    //     .then(() => {
-    //       this.sendMessage(this.senderId, JSON.stringify({ sdp: this.pc.localDescription }));
-    //       this.callActive = true;
-    //     });
-    // } catch (error) {
-    //   this.setupWebRtc();
-    //   console.log(error);
-    // }
+  hangup() {
+    this.pc.close();
+    this.localStream.getTracks().forEach(track => track.stop());
+    this.callActive = false;
   }
 
   startCam() {
