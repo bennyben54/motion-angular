@@ -55,6 +55,7 @@ import {
 } from '@angular/material';
 import { CamComponent } from './view/cam/cam.component';
 import { myRxStompConfig } from './my-rx-stomp.config';
+import { AutoLoginComponent } from './view/auto-login/auto-login.component';
 
 @NgModule({
   declarations: [
@@ -66,7 +67,8 @@ import { myRxStompConfig } from './my-rx-stomp.config';
     UserElemComponent,
     SubscribeComponent,
     SubscribeElemComponent,
-    CamComponent
+    CamComponent,
+    AutoLoginComponent
   ],
   imports: [
     BrowserModule,
@@ -74,6 +76,7 @@ import { myRxStompConfig } from './my-rx-stomp.config';
     FormsModule,
     RouterModule.forRoot([
       { path: '', component: HomeComponent },
+      { path: 'login/auto', component: AutoLoginComponent },
       { path: 'login', component: LoginComponent },
       { path: 'admin', component: AdminComponent },
       { path: 'cam', component: CamComponent },

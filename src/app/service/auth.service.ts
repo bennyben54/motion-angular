@@ -1,13 +1,13 @@
-import { Injectable, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { UserLogin } from '../model/auth/user-login';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
+import { AuthorityType } from '../model/auth/authority-type.enum';
 import { Token } from '../model/auth/token';
 import { UserInfo } from '../model/auth/user-info';
-import { LoadingService } from './loading.service';
+import { UserLogin } from '../model/auth/user-login';
 import { LoadingId } from '../model/loading/loading-id.enum';
-import { AuthorityType } from '../model/auth/authority-type.enum';
-import { environment } from 'src/environments/environment';
+import { LoadingService } from './loading.service';
 
 @Injectable({
   providedIn: 'root'
@@ -39,9 +39,9 @@ export class AuthService {
       return false;
     }
     return !!this.user.authorities.find(a => a === AuthorityType.ROLE_ADMIN);
-}
+  }
 
-  obtainAccessToken(loginData: UserLogin) {
+  obtainAccessToken(loginData: UserLogin, routeToFollowIfLogged?: string) {
     this.loadingService.startLoading(LoadingId.LOGIN);
     const httpParams = new HttpParams()
       .set('username', loginData.username)
@@ -64,15 +64,16 @@ export class AuthService {
       .subscribe(
         data => {
           this.saveToken(data);
-          this.checkToken();
+          this.checkToken(routeToFollowIfLogged);
         },
         err => {
           this.loadingService.stopLoading(LoadingId.LOGIN);
-          alert('Invalid Credentials');
+          this.router.navigateByUrl('/login?error=true');
+          // alert('Invalid Credentials');
         });
   }
 
-  private checkToken() {
+  private checkToken(routeToFollowIfLogged?: string) {
     const httpHeaders = new HttpHeaders()
         .set('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8')
         .set('Authorization', this.computeBasic());
@@ -86,7 +87,9 @@ export class AuthService {
           .subscribe(
             data => {
               this.saveUserInfo(data);
-              if (this.isAdmin()) {
+              if (routeToFollowIfLogged) {
+                this.router.navigate([routeToFollowIfLogged]);
+              } else if (this.isAdmin()) {
                 this.router.navigate(['/admin']);
               } else {
                 this.router.navigate(['/']);

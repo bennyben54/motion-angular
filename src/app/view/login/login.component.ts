@@ -1,10 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { AuthService } from '../../service/auth.service';
-import { UserLogin } from '../../model/auth/user-login';
-import { LoadingService } from 'src/app/service/loading.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatSnackBar, MatSnackBarConfig, MAT_SNACK_BAR_DEFAULT_OPTIONS_FACTORY } from '@angular/material';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { LoadingId } from 'src/app/model/loading/loading-id.enum';
-import { Router } from '@angular/router';
+import { LoadingService } from 'src/app/service/loading.service';
+import { UserLogin } from '../../model/auth/user-login';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,14 +21,39 @@ export class LoginComponent implements OnInit, OnDestroy {
   loading = false;
   hide = true;
 
-  constructor(private authService: AuthService, private loadingService: LoadingService, private router: Router) { }
+  constructor(
+    private authService: AuthService,
+    private loadingService: LoadingService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar) { }
 
   ngOnInit() {
-    this.subscriptions.push(
-      this.loadingService.getLoadingObservable(LoadingId.LOGIN).subscribe(
-        val => this.loading = val
-      )
-    );
+    if (this.authService.isLogged()) {
+      this.router.navigate(['/']);
+    } else {
+      this.route.queryParamMap.subscribe(params => {
+        if (params.get('error') === 'true') {
+          this.manageLoginError();
+        }
+      });
+      this.subscriptions.push(
+        this.loadingService.getLoadingObservable(LoadingId.LOGIN).subscribe(
+          val => this.loading = val
+        )
+      );
+    }
+  }
+
+  private manageLoginError() {
+    const snackBarConfig = MAT_SNACK_BAR_DEFAULT_OPTIONS_FACTORY();
+    snackBarConfig.verticalPosition = 'top';
+    snackBarConfig.duration = 3000;
+    this.snackBar.open('Wrong login / password !', 'x', snackBarConfig);
+    this.snackBar._openedSnackBarRef.onAction()
+      .subscribe(() => this.router.navigate(['/login']), err => console.error('snackbar error', err));
+    this.snackBar._openedSnackBarRef.afterDismissed()
+      .subscribe(() => this.router.navigate(['/login']), err => console.error('snackbar error', err));
   }
 
   ngOnDestroy() {

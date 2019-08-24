@@ -50,23 +50,22 @@ export class CamComponent implements OnInit, OnDestroy {
   @ViewChild('localVideo') me: ElementRef;
   @ViewChild('remoteVideo') remote: ElementRef;
 
-  private pc: RTCPeerConnection;
-  private subscriptions: Subscription[] = [];
-  private myName: UserName;
-  private remoteName: UserName;
-  private localStream: MediaStream;
   private readonly iceServers = [
     { urls: 'stun:stun.services.mozilla.com' },
     { urls: 'stun:stun.l.google.com:19302' }
   ];
 
+  private pc: RTCPeerConnection;
+  private subscriptions: Subscription[] = [];
+  private myName: UserName;
+  private remoteName: UserName;
+  private localStream: MediaStream;
+
   errors: string[] = [];
   callActive = false;
 
-  constructor(private route: ActivatedRoute, private messagingService: MessagingService) { }
-
-  ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+  constructor(private route: ActivatedRoute, private messagingService: MessagingService) {
+    this.route.queryParamMap.subscribe(params => {
       if (params.get('user') === UserName.caller) {
         this.myName = UserName.caller;
         this.remoteName = UserName.answerer;
@@ -75,12 +74,15 @@ export class CamComponent implements OnInit, OnDestroy {
         this.remoteName = UserName.caller;
       }
     });
+  }
 
+  ngOnInit() {
     this.setupWebRtc();
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.hangupCall();
   }
 
   private sendMessage(message: ExchangeMessage) {
@@ -115,8 +117,6 @@ export class CamComponent implements OnInit, OnDestroy {
     this.pc.onicecandidate = event => {
       if (event.candidate) {
         this.sendMessage(this.createIceCandidate(event));
-      } else {
-        console.log('Sent All Ice Candidates');
       }
     };
 
@@ -128,7 +128,6 @@ export class CamComponent implements OnInit, OnDestroy {
     this.messagingService.onReceiveMessage(
       message => {
         const parsed: ExchangeMessage = JSON.parse(message.body);
-        console.warn(parsed);
         if (parsed.target === this.myName) {
           switch (parsed.type) {
             case MessageType.newIceCandidate :
@@ -206,14 +205,20 @@ export class CamComponent implements OnInit, OnDestroy {
     this.handleCall(MessageType.videoAnswer, () => this.pc.createAnswer());
   }
 
-  hangup() {
+  hangupCall() {
     this.pc.close();
-    this.localStream.getTracks().forEach(track => track.stop());
+    if (this.localStream) {
+      this.localStream.getTracks().forEach(track => track.stop());
+    }
     this.callActive = false;
   }
 
-  startCam() {
-    this.startCall();
+  callAction() {
+    if (this.callActive) {
+      this.hangupCall();
+    } else {
+      this.startCall();
+    }
   }
 
   private handleError(message?: any, ...optionalParams: any[]): void {
