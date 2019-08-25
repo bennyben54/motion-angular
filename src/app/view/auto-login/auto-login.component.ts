@@ -23,7 +23,7 @@ export class AutoLoginComponent implements OnInit {
         const loginData = new UserLogin();
         loginData.username = username;
         loginData.password = password;
-        this.authService.obtainAccessToken(loginData, '/cam');
+        this.authService.obtainAccessToken(loginData, '/cam?user=answerer');
       } else {
         this.router.navigate(['/login']);
       }

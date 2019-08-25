@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('HomeComponent.ngOnInit()');
+    this.authService.checkCredentials();
     this.camera1Loading = true;
     this.camera2Loading = true;
   }

@@ -88,7 +88,7 @@ export class AuthService {
             data => {
               this.saveUserInfo(data);
               if (routeToFollowIfLogged) {
-                this.router.navigate([routeToFollowIfLogged]);
+                this.router.navigateByUrl(routeToFollowIfLogged);
               } else if (this.isAdmin()) {
                 this.router.navigate(['/admin']);
               } else {

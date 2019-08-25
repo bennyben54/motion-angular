@@ -1,3 +1,4 @@
+import { AuthService } from 'src/app/service/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -64,19 +65,20 @@ export class CamComponent implements OnInit, OnDestroy {
   errors: string[] = [];
   callActive = false;
 
-  constructor(private route: ActivatedRoute, private messagingService: MessagingService) {
+  constructor(private authService: AuthService, private route: ActivatedRoute, private messagingService: MessagingService) {
     this.route.queryParamMap.subscribe(params => {
-      if (params.get('user') === UserName.caller) {
-        this.myName = UserName.caller;
-        this.remoteName = UserName.answerer;
-      } else {
+      if (params.get('user') === UserName.answerer) {
         this.myName = UserName.answerer;
         this.remoteName = UserName.caller;
+      } else {
+        this.myName = UserName.caller;
+        this.remoteName = UserName.answerer;
       }
     });
   }
 
   ngOnInit() {
+    this.authService.checkCredentials();
     this.setupWebRtc();
   }
 
