@@ -75,7 +75,7 @@ import { AutoLoginComponent } from './view/auto-login/auto-login.component';
     HttpClientModule,
     FormsModule,
     RouterModule.forRoot([
-      { path: '', component: HomeComponent },
+      { path: '', component: CamComponent },
       { path: 'login/auto', component: AutoLoginComponent },
       { path: 'login', component: LoginComponent },
       { path: 'admin', component: AdminComponent },
