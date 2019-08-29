@@ -8,7 +8,8 @@ import { MessagingService } from './../../service/messaging.service';
 enum MessageType {
   videoOffer = 'video-offer',
   videoAnswer = 'video-answer',
-  newIceCandidate = 'new-ice-candidate'
+  newIceCandidate = 'new-ice-candidate',
+  hangup = 'hangup'
 }
 
 enum UserName {
@@ -79,7 +80,31 @@ export class CamComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.authService.checkCredentials();
-    this.setupWebRtc();
+    this.setupMessagesHandling();
+  }
+
+  private setupMessagesHandling() {
+    this.messagingService.onReceiveMessage(message => {
+      const parsed: ExchangeMessage = JSON.parse(message.body);
+      if (parsed.target === this.myName) {
+        this.setupWebRtc();
+        switch (parsed.type) {
+          case MessageType.newIceCandidate:
+            this.pc.addIceCandidate(new RTCIceCandidate(JSON.parse(parsed.candidate)));
+            break;
+          case MessageType.videoOffer:
+            this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp))
+              .then(() => this.answerCall());
+            break;
+          case MessageType.videoAnswer:
+            this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp));
+            break;
+          case MessageType.hangup:
+            this.hangupCall();
+            break;
+        }
+      }
+    });
   }
 
   ngOnDestroy() {
@@ -108,7 +133,11 @@ export class CamComponent implements OnInit, OnDestroy {
     };
   }
 
-  setupWebRtc() {
+  private setupWebRtc() {
+    if (this.pc) {
+      return;
+    }
+
     this.initPeerConnection();
 
     if (!this.pc) {
@@ -116,36 +145,20 @@ export class CamComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.pc.onicecandidate = event => {
-      if (event.candidate) {
-        this.sendMessage(this.createIceCandidate(event));
-      }
-    };
-
-    this.pc.ontrack = event => {
-      // receiving remote media stream
-      (this.remote.nativeElement.srcObject = event.streams[0]);
-    };
-
-    this.messagingService.onReceiveMessage(
-      message => {
-        const parsed: ExchangeMessage = JSON.parse(message.body);
-        if (parsed.target === this.myName) {
-          switch (parsed.type) {
-            case MessageType.newIceCandidate :
-                this.pc.addIceCandidate(new RTCIceCandidate(JSON.parse(parsed.candidate)));
-              break;
-            case MessageType.videoOffer :
-                this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp))
-                .then(() => this.answerCall());
-                break;
-            case MessageType.videoAnswer :
-                this.pc.setRemoteDescription(new RTCSessionDescription(parsed.sdp));
-                break;
-              }
-          }
+    if (!this.pc.onicecandidate) {
+      this.pc.onicecandidate = event => {
+        if (event.candidate) {
+          this.sendMessage(this.createIceCandidate(event));
         }
-    );
+      };
+    }
+
+    if (!this.pc.ontrack) {
+      this.pc.ontrack = event => {
+        // receiving remote media stream
+        (this.remote.nativeElement.srcObject = event.streams[0]);
+      };
+    }
   }
 
   private initPeerConnection(retryOnce: boolean = true) {
@@ -167,6 +180,8 @@ export class CamComponent implements OnInit, OnDestroy {
     messageType: MessageType.videoOffer | MessageType.videoAnswer,
     createOfferOrAnswerCallback: (options?: RTCOfferOptions) => Promise<RTCSessionDescriptionInit>
     ) {
+    this.setupWebRtc();
+
     navigator.mediaDevices.getUserMedia(
       {video: true , audio: true})
       .then(
@@ -208,9 +223,13 @@ export class CamComponent implements OnInit, OnDestroy {
   }
 
   hangupCall() {
-    this.pc.close();
+    if (this.pc) {
+      this.pc.close();
+      this.pc = undefined;
+    }
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => track.stop());
+      this.localStream = undefined;
     }
     this.callActive = false;
   }
@@ -218,6 +237,12 @@ export class CamComponent implements OnInit, OnDestroy {
   callAction() {
     if (this.callActive) {
       this.hangupCall();
+      this.sendMessage(
+        {
+          type: MessageType.hangup,
+          target: this.remoteName
+        }
+      );
     } else {
       this.startCall();
     }
