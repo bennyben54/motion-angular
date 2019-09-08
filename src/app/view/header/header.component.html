@@ -14,6 +14,10 @@
                                         <mat-icon>perm_data_setting</mat-icon>
                                         <span>Admin</span>
                                 </button>
+                                <button *ngIf="authService.isAdmin()" mat-menu-item (click)="goToCam()">
+                                        <mat-icon>videocam</mat-icon>
+                                        <span>Camera</span>
+                                </button>
                                 <button mat-menu-item (click)="logout()">
                                         <mat-icon>exit_to_app</mat-icon>
                                         <span>Logout</span>

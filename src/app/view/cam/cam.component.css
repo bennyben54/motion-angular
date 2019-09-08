@@ -1,0 +1,28 @@
+.home {
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.startCam {
+    margin-top: 5px;
+}
+
+.video {
+    padding-top: 5px;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.local {
+    width: 64px;
+    height: 48px;
+}
+
+.remote {
+    width: 320px;
+    height: 240px;
+}
