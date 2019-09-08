@@ -33,7 +33,7 @@ export class AdminComponent implements OnInit {
     private router: Router) { }
 
   ngOnInit() {
-    console.log('AdminComponent.ngOnInit()');
+    this.authService.checkCredentials();
     if (this.authService.isAdmin()) {
       this.fetchUsers();
       this.fetchSubscribers();

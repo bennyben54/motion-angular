@@ -1,0 +1,8 @@
+<div class="home">
+    <button class="startCam" (click) = "callAction()">
+        <mat-icon *ngIf="!callActive">call</mat-icon>
+        <mat-icon *ngIf="callActive">call_end</mat-icon>
+    </button>
+    <!-- <video class="video local" id="localVideo" autoplay muted #localVideo></video> -->
+    <video class="video remote" id="remoteVideo" autoplay controls #remoteVideo></video>
+</div>
