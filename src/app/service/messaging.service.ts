@@ -14,7 +14,7 @@ export class MessagingService implements OnDestroy {
   constructor(private rxStompService: RxStompService) { }
 
   sendMessage(body: string) {
-    console.warn('sendMessage', body);
+    // console.warn('sendMessage', body);
     this.rxStompService.publish({destination: environment.rabbitmq.topic, body: body});
   }
 
@@ -24,7 +24,7 @@ export class MessagingService implements OnDestroy {
     }
     this.onReceiveMessageSubscription =  this.rxStompService.watch(environment.rabbitmq.topic).subscribe(
       message => {
-        console.warn('onReceiveMessage', message.body);
+        // console.warn('onReceiveMessage', message.body);
         whatToDoWithMessage(message);
       });
   }

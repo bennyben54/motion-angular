@@ -1,6 +1,6 @@
 import { AuthService } from 'src/app/service/auth.service';
 import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { MessagingService } from './../../service/messaging.service';
@@ -49,12 +49,12 @@ interface IceCandidate extends ExchangeMessage {
 })
 export class CamComponent implements OnInit, OnDestroy {
 
-  @ViewChild('localVideo') me: ElementRef;
+  // @ViewChild('localVideo') me: ElementRef;
   @ViewChild('remoteVideo') remote: ElementRef;
 
   private readonly iceServers = [
-    { urls: 'stun:stun.services.mozilla.com' },
-    { urls: 'stun:stun.l.google.com:19302' }
+    // { urls: 'stun:stun.services.mozilla.com' },
+    // { urls: 'stun:stun.l.google.com:19302' }
   ];
 
   private pc: RTCPeerConnection;
@@ -83,6 +83,11 @@ export class CamComponent implements OnInit, OnDestroy {
     this.setupMessagesHandling();
   }
 
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.hangupCall();
+  }
+
   private setupMessagesHandling() {
     this.messagingService.onReceiveMessage(message => {
       const parsed: ExchangeMessage = JSON.parse(message.body);
@@ -105,11 +110,6 @@ export class CamComponent implements OnInit, OnDestroy {
         }
       }
     });
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-    this.hangupCall();
   }
 
   private sendMessage(message: ExchangeMessage) {
@@ -186,7 +186,7 @@ export class CamComponent implements OnInit, OnDestroy {
       {video: true , audio: true})
       .then(
       stream => {
-        this.me.nativeElement.srcObject = stream;
+        // this.me.nativeElement.srcObject = stream;
         this.localStream = stream;
         stream.getTracks().forEach(track => {
           this.pc.addTrack(track, stream);
