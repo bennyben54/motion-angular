@@ -16,7 +16,7 @@ export const environment = {
     appSecret: 'e6aec4e0-e421-415a-8f84-d06237963831'
   },
   rabbitmq: {
-    topic: '/topic/webrtc'
+    topic: '/queue/webrtc'
   }
 };
 
